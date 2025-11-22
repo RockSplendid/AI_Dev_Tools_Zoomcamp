@@ -1,24 +1,307 @@
 {% extends 'todos/base.html' %}
 
-{% block content %}
-<h1>My TODOs</h1>
-<a href="{% url 'todo_create' %}" class="btn btn-success mb-3">+ Add New TODO</a>
+{% block title %}My TODOs - TODO Application{% endblock %}
 
-{% if todos %}
-    <div class="list-group">
-        {% for todo in todos %}
-        <div class="list-group-item">
-            <h5>{{ todo.title }}</h5>
-            <p>{{ todo.description }}</p>
-            <div class="btn-group">
-                <a href="{% url 'todo_detail' todo.pk %}" class="btn btn-sm btn-info">View</a>
-                <a href="{% url 'todo_update' todo.pk %}" class="btn btn-sm btn-primary">Edit</a>
-                <a href="{% url 'todo_delete' todo.pk %}" class="btn btn-sm btn-danger">Delete</a>
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-4 mb-0">
+            <i class="bi bi-clipboard-check"></i> My TODOs
+        </h1>
+        <p class="text-muted">Manage your tasks efficiently</p>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="stat-card bg-primary text-white shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">Total</h6>
+                    <h2 class="mb-0">{{ total_count }}</h2>
+                </div>
+                <i class="bi bi-list-check"></i>
             </div>
         </div>
-        {% endfor %}
     </div>
-{% else %}
-    <p>No TODOs yet. Create your first one!</p>
-{% endif %}
+    
+    <div class="col-md-3 mb-3">
+        <div class="stat-card bg-warning text-dark shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">Active</h6>
+                    <h2 class="mb-0">{{ active_count }}</h2>
+                </div>
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="stat-card bg-success text-white shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">Completed</h6>
+                    <h2 class="mb-0">{{ resolved_count }}</h2>
+                </div>
+                <i class="bi bi-check-circle"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="stat-card bg-danger text-white shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">Overdue</h6>
+                    <h2 class="mb-0">{{ overdue_count }}</h2>
+                </div>
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions Bar -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <!-- Add Button -->
+                    <div class="col-md-3 mb-2 mb-md-0">
+                        <a href="{% url 'todo_create' %}" class="btn btn-success w-100">
+                            <i class="bi bi-plus-circle"></i> Add New TODO
+                        </a>
+                    </div>
+                    
+                    <!-- Search Bar -->
+                    <div class="col-md-5 mb-2 mb-md-0">
+                        <form method="get" action="{% url 'todo_list' %}">
+                            <div class="input-group">
+                                <input type="text" 
+                                       name="search" 
+                                       class="form-control" 
+                                       placeholder="Search TODOs..." 
+                                       value="{{ search_query }}">
+                                <button class="btn btn-outline-secondary" type="submit">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Sort Dropdown -->
+                    <div class="col-md-4">
+                        <select class="form-select" id="sortSelect" onchange="applySort(this.value)">
+                            <option value="-created_at" {% if current_sort == '-created_at' %}selected{% endif %}>
+                                Newest First
+                            </option>
+                            <option value="created_at" {% if current_sort == 'created_at' %}selected{% endif %}>
+                                Oldest First
+                            </option>
+                            <option value="due_date" {% if current_sort == 'due_date' %}selected{% endif %}>
+                                Due Date (Earliest)
+                            </option>
+                            <option value="-due_date" {% if current_sort == '-due_date' %}selected{% endif %}>
+                                Due Date (Latest)
+                            </option>
+                            <option value="title" {% if current_sort == 'title' %}selected{% endif %}>
+                                Title (A-Z)
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Pills -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="filter-pills">
+            <a href="?filter=all{% if search_query %}&search={{ search_query }}{% endif %}" 
+               class="btn btn-sm {% if filter_type == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                All
+            </a>
+            <a href="?filter=active{% if search_query %}&search={{ search_query }}{% endif %}" 
+               class="btn btn-sm {% if filter_type == 'active' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+                Active
+            </a>
+            <a href="?filter=resolved{% if search_query %}&search={{ search_query }}{% endif %}" 
+               class="btn btn-sm {% if filter_type == 'resolved' %}btn-success{% else %}btn-outline-success{% endif %}">
+                Completed
+            </a>
+            <a href="?filter=overdue{% if search_query %}&search={{ search_query }}{% endif %}" 
+               class="btn btn-sm {% if filter_type == 'overdue' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                Overdue
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- TODO List -->
+<div class="row">
+    <div class="col-12">
+        {% if todos %}
+            <div class="list-group shadow-sm">
+                {% for todo in todos %}
+                    {% load tz %}
+                    <div class="list-group-item todo-item 
+                                {% if todo.is_resolved %}todo-resolved
+                                {% elif todo.is_overdue %}todo-overdue
+                                {% else %}todo-active{% endif %}">
+                        <div class="d-flex w-100 justify-content-between align-items-start">
+                            <!-- Todo Content -->
+                            <div class="flex-grow-1 me-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <h5 class="mb-0 todo-title">
+                                        {% if todo.is_resolved %}
+                                            <i class="bi bi-check-circle-fill text-success"></i>
+                                        {% else %}
+                                            <i class="bi bi-circle"></i>
+                                        {% endif %}
+                                        {{ todo.title }}
+                                    </h5>
+                                    
+                                    <!-- Status Badges -->
+                                    {% if not todo.is_resolved and todo.is_overdue %}
+                                        <span class="badge badge-overdue ms-2">
+                                            <i class="bi bi-exclamation-triangle"></i> Overdue
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if todo.description %}
+                                    <p class="mb-2 text-muted">{{ todo.description|truncatewords:20 }}</p>
+                                {% endif %}
+                                
+                                <!-- Meta Information -->
+                                <div class="d-flex flex-wrap gap-3 small text-muted">
+                                    {% if todo.due_date %}
+                                        <span>
+                                            <i class="bi bi-calendar-event"></i>
+                                            Due: {{ todo.due_date|date:"M d, Y H:i" }}
+                                        </span>
+                                    {% endif %}
+                                    
+                                    {% if todo.category %}
+                                        <span>
+                                            <i class="bi bi-tag"></i>
+                                            {{ todo.category.name }}
+                                        </span>
+                                    {% endif %}
+                                    
+                                    <span>
+                                        <i class="bi bi-clock"></i>
+                                        Created: {{ todo.created_at|date:"M d, Y" }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="btn-group-vertical" role="group">
+                                <a href="{% url 'todo_detail' todo.pk %}" 
+                                   class="btn btn-sm btn-outline-info"
+                                   title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                
+                                <form method="post" action="{% url 'todo_toggle' todo.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" 
+                                            class="btn btn-sm {% if todo.is_resolved %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
+                                            title="{% if todo.is_resolved %}Reopen{% else %}Complete{% endif %}">
+                                        <i class="bi bi-{% if todo.is_resolved %}arrow-counterclockwise{% else %}check{% endif %}"></i>
+                                    </button>
+                                </form>
+                                
+                                <a href="{% url 'todo_update' todo.pk %}" 
+                                   class="btn btn-sm btn-outline-primary"
+                                   title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                
+                                <a href="{% url 'todo_delete' todo.pk %}" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    First
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    Previous
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    Next
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    Last
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted"></i>
+                    <h3 class="mt-3">No TODOs Found</h3>
+                    <p class="text-muted">
+                        {% if search_query %}
+                            No TODOs match your search "{{ search_query }}"
+                        {% else %}
+                            Start by creating your first TODO!
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'todo_create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Create Your First TODO
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function applySort(sortValue) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort', sortValue);
+        window.location.href = url.toString();
+    }
+</script>
 {% endblock %}

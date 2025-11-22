@@ -1,9 +1,134 @@
 {% extends 'todos/base.html' %}
 
+{% block title %}{{ todo.title }} - TODO Application{% endblock %}
+
 {% block content %}
-<h2>{{ todo.title }}</h2>
-<p>{{ todo.description }}</p>
-<p>Status: {% if todo.is_resolved %}Completed{% else %}Active{% endif %}</p>
-<a href="{% url 'todo_list' %}" class="btn btn-secondary">Back</a>
-<a href="{% url 'todo_update' todo.pk %}" class="btn btn-primary">Edit</a>
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <!-- Back Button -->
+        <div class="mb-3">
+            <a href="{% url 'todo_list' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+        
+        <!-- TODO Detail Card -->
+        <div class="card shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">
+                    {% if todo.is_resolved %}
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                    {% else %}
+                        <i class="bi bi-circle text-warning"></i>
+                    {% endif %}
+                    {{ todo.title }}
+                </h3>
+                
+                <div class="btn-group">
+                    <a href="{% url 'todo_update' todo.pk %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                    <a href="{% url 'todo_delete' todo.pk %}" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i> Delete
+                    </a>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <!-- Status Badge -->
+                <div class="mb-3">
+                    {% if todo.is_resolved %}
+                        <span class="badge bg-success fs-6">
+                            <i class="bi bi-check-circle"></i> Completed
+                        </span>
+                    {% elif is_overdue %}
+                        <span class="badge bg-danger fs-6">
+                            <i class="bi bi-exclamation-triangle"></i> Overdue
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning fs-6">
+                            <i class="bi bi-hourglass-split"></i> Active
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <!-- Description -->
+                {% if todo.description %}
+                    <h5>Description</h5>
+                    <p class="text-muted">{{ todo.description|linebreaks }}</p>
+                    <hr>
+                {% endif %}
+                
+                <!-- Meta Information -->
+                <h5>Details</h5>
+                <dl class="row">
+                    {% if todo.due_date %}
+                    <dt class="col-sm-3">Due Date:</dt>
+                    <dd class="col-sm-9">
+                        <i class="bi bi-calendar-event"></i>
+                        {{ todo.due_date|date:"F d, Y \a\t H:i" }}
+                        {% if is_overdue and not todo.is_resolved %}
+                            <span class="badge bg-danger ms-2">Overdue</span>
+                        {% endif %}
+                    </dd>
+                    {% endif %}
+                    
+                    {% if todo.category %}
+                    <dt class="col-sm-3">Category:</dt>
+                    <dd class="col-sm-9">
+                        <i class="bi bi-tag"></i> {{ todo.category.name }}
+                    </dd>
+                    {% endif %}
+                    
+                    <dt class="col-sm-3">Created:</dt>
+                    <dd class="col-sm-9">
+                        <i class="bi bi-clock-history"></i>
+                        {{ todo.created_at|date:"F d, Y \a\t H:i" }}
+                    </dd>
+                    
+                    <dt class="col-sm-3">Last Updated:</dt>
+                    <dd class="col-sm-9">
+                        <i class="bi bi-clock"></i>
+                        {{ todo.updated_at|date:"F d, Y \a\t H:i" }}
+                    </dd>
+                    
+                    <dt class="col-sm-3">Status:</dt>
+                    <dd class="col-sm-9">
+                        {% if todo.is_resolved %}
+                            <span class="text-success">
+                                <i class="bi bi-check-circle-fill"></i> Resolved
+                            </span>
+                        {% else %}
+                            <span class="text-warning">
+                                <i class="bi bi-hourglass-split"></i> Active
+                            </span>
+                        {% endif %}
+                    </dd>
+                </dl>
+                
+                <!-- Tags -->
+                {% if todo.tags.all %}
+                    <hr>
+                    <h5>Tags</h5>
+                    <div>
+                        {% for tag in todo.tags.all %}
+                            <span class="badge bg-info text-dark me-1">{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Card Footer with Actions -->
+            <div class="card-footer">
+                <form method="post" action="{% url 'todo_toggle' todo.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn {% if todo.is_resolved %}btn-warning{% else %}btn-success{% endif %}">
+                        <i class="bi bi-{% if todo.is_resolved %}arrow-counterclockwise{% else %}check-circle{% endif %}"></i>
+                        {% if todo.is_resolved %}Reopen TODO{% else %}Mark as Complete{% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
