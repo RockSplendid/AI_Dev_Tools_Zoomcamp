@@ -1,0 +1,9 @@
+{% extends 'todos/base.html' %}
+
+{% block content %}
+<h2>{{ todo.title }}</h2>
+<p>{{ todo.description }}</p>
+<p>Status: {% if todo.is_resolved %}Completed{% else %}Active{% endif %}</p>
+<a href="{% url 'todo_list' %}" class="btn btn-secondary">Back</a>
+<a href="{% url 'todo_update' todo.pk %}" class="btn btn-primary">Edit</a>
+{% endblock %}
