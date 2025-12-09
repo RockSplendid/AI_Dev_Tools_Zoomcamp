@@ -6,6 +6,12 @@ WORKDIR /app
 # Install concurrently and serve globally
 RUN npm install -g concurrently serve
 
+# Build-time environment defaults (Render can override via build args)
+ARG REACT_APP_API_URL=http://localhost:8080
+ARG REACT_APP_WS_URL=http://localhost:8080
+ENV REACT_APP_API_URL=${REACT_APP_API_URL}
+ENV REACT_APP_WS_URL=${REACT_APP_WS_URL}
+
 # Copy package.json files
 COPY package.json package-lock.json ./
 COPY backend/package*.json ./backend/
@@ -29,11 +35,12 @@ RUN npm run build
 WORKDIR /app
 
 # Expose both ports
-EXPOSE 3000 5000
+EXPOSE 3000 8080
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV REACT_APP_SERVER_URL=http://localhost:5000
+ENV PORT=3000
+ENV BACKEND_PORT=8080
 
-# Run both services with concurrently
-CMD ["concurrently", "cd backend && npm start", "serve -s frontend/build -l 3000"]
+# Run both services with concurrently (shell to expand env vars)
+CMD ["sh", "-c", "concurrently \"cd backend && BACKEND_PORT=$BACKEND_PORT PORT=$BACKEND_PORT npm start\" \"serve -s frontend/build -l $PORT\""]

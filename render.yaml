@@ -10,5 +10,9 @@ services:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 5000
-    healthCheckPath: /health
+        value: 3000
+      - key: REACT_APP_API_URL
+        value: http://localhost:8080
+      - key: REACT_APP_WS_URL
+        value: http://localhost:8080
+      healthCheckPath: /
