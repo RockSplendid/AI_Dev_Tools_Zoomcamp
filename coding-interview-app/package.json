@@ -1,0 +1,32 @@
+{
+  "name": "coding-interview-app",
+  "version": "1.0.0",
+  "description": "Online Coding Interview Application - Full Stack",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "backend": "cd backend && npm start",
+    "backend:dev": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm start",
+    "frontend:dev": "cd frontend && npm start",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "test": "cd backend && npm test",
+    "test:watch": "cd backend && npm run test:watch",
+    "docker": "docker-compose up",
+    "docker:build": "docker-compose build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "coding",
+    "interview",
+    "collaboration",
+    "real-time",
+    "websocket"
+  ],
+  "author": "",
+  "license": "MIT"
+}

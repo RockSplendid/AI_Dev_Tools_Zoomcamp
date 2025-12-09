@@ -1,0 +1,163 @@
+.interview-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+}
+
+.interview-header {
+  background-color: var(--dark-color);
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow);
+}
+
+.interview-header h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.header-info {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.room-id {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+}
+
+.interview-layout {
+  display: flex;
+  flex: 1;
+  gap: 0;
+  overflow: hidden;
+}
+
+.left-panel {
+  width: 200px;
+  background-color: white;
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+}
+
+.center-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-right: 1px solid var(--border-color);
+}
+
+.right-panel {
+  width: 250px;
+  background-color: white;
+  border-left: 1px solid var(--border-color);
+  overflow-y: auto;
+}
+
+.editor-controls {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  background-color: var(--light-color);
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-group label {
+  font-weight: 600;
+  margin: 0;
+}
+
+.language-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.editor-container {
+  flex: 1;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.editor-container .ace_editor {
+  border: none;
+}
+
+.join-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.join-box {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  max-width: 400px;
+  text-align: center;
+}
+
+.join-box h2 {
+  margin-bottom: 20px;
+  color: var(--dark-color);
+}
+
+.join-box p {
+  margin-bottom: 30px;
+  color: var(--secondary-color);
+  font-size: 14px;
+}
+
+.join-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.join-box input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+}
+
+.join-box .btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+}
+
+@media (max-width: 1200px) {
+  .interview-layout {
+    flex-direction: column;
+  }
+
+  .left-panel,
+  .right-panel {
+    width: 100%;
+    height: auto;
+    max-height: 150px;
+  }
+
+  .center-panel {
+    flex: 1;
+  }
+}

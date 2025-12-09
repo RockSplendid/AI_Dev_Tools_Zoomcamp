@@ -1,0 +1,52 @@
+.console-container {
+  padding: 15px;
+  background-color: var(--light-color);
+  border-top: 1px solid var(--border-color);
+}
+
+.console-container h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.console-output {
+  background-color: #1e1e1e;
+  color: #00ff00;
+  padding: 12px;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  max-height: 120px;
+  overflow-y: auto;
+  line-height: 1.5;
+  border: 1px solid #444;
+}
+
+.console-output pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.console-output.executing {
+  animation: blink 1s infinite;
+}
+
+.console-output .placeholder {
+  color: #888;
+  margin: 0;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
