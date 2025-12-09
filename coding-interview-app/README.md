@@ -2,6 +2,8 @@
 
 A real-time collaborative coding interview platform that allows multiple users to edit code simultaneously, with syntax highlighting and code execution capabilities.
 
+🚀 **Live Demo**: [https://coding-interview-app-k7md.onrender.com](https://coding-interview-app-k7md.onrender.com)
+
 ## Features
 
 ✅ **Real-time Collaboration**
@@ -221,7 +223,51 @@ Response:
 
 ## Deployment
 
-### Deploy Backend (Heroku/Railway)
+### Production Deployment (Render)
+
+The application is deployed on Render using a single-container architecture where the backend serves both the API and the static React frontend.
+
+**Live Application**: [https://coding-interview-app-k7md.onrender.com](https://coding-interview-app-k7md.onrender.com)
+
+#### Deploy to Render
+
+1. **Push your code to GitHub**
+   ```bash
+   git add .
+   git commit -m "Deploy to Render"
+   git push origin main
+   ```
+
+2. **Connect to Render**
+   - Sign up at [render.com](https://render.com)
+   - Click "New +" → "Blueprint"
+   - Connect your GitHub repository
+   - Render will auto-detect `render.yaml` at the repo root
+
+3. **Auto-Deploy**
+   - Render automatically deploys on every push to `main`
+   - Build typically takes 3-5 minutes
+   - Health checks ensure the service is running
+
+#### Architecture on Render
+
+- **Single Port**: Backend runs on port 3000 (or Render's assigned port)
+- **Unified Service**: Backend serves both:
+  - API endpoints (`/api/*`, `/health`)
+  - Static React build (all other routes)
+  - WebSocket connections (Socket.io)
+- **Environment**: Docker container with Node.js 18 Alpine
+- **Scaling**: Free tier with automatic sleep after 15 min of inactivity
+
+#### Configuration Files
+
+- `render.yaml`: Deployment blueprint at repo root
+- `Dockerfile`: Multi-stage build with production optimizations
+- `backend/server.js`: Serves static files in production mode
+
+### Alternative Deployment Options
+
+#### Deploy Backend Only (Railway/Heroku)
 
 ```bash
 cd backend
@@ -229,14 +275,16 @@ cd backend
 git push heroku main
 ```
 
-### Deploy Frontend (Vercel/Netlify)
+#### Deploy Frontend Only (Vercel/Netlify)
 
 ```bash
 cd frontend
-# Update REACT_APP_SERVER_URL to your backend URL
+# Update REACT_APP_API_URL to your backend URL
 npm run build
 # Deploy the build folder
 ```
+
+**Note**: For split deployments, update `REACT_APP_API_URL` and `REACT_APP_WS_URL` in your build environment.
 
 ## Development
 
@@ -260,6 +308,20 @@ npm run dev
 cd frontend
 npm start
 ```
+
+## Docker Deployment
+
+### Using Docker Compose (Local)
+
+```bash
+# Build and start the container
+docker-compose up --build
+
+# Access the application
+# http://localhost:5000
+```
+
+The Docker setup runs both backend and frontend in a single container, similar to the production Render deployment.
 
 ## Available Scripts
 
