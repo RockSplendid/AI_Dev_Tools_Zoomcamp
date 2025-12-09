@@ -4,6 +4,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
@@ -218,6 +219,16 @@ io.on('connection', (socket) => {
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+// Serve static files from React build in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  
+  // Catch-all handler for React Router (must be after all API routes)
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+  });
+}
 
 const PORT = process.env.BACKEND_PORT || process.env.PORT || 5000;
 server.listen(PORT, () => {
